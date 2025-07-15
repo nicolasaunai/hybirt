@@ -67,14 +67,22 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
          ++ix)
     {
         auto x = layout.coordinate(Direction::X, Quantity::Bx, ix);
-        auto y = layout.coordinate(Direction::X, Quantity::By, ix);
-        auto z = layout.coordinate(Direction::X, Quantity::Bz, ix);
 
         B.x(ix) = 1.0; // Bx
         B.y(ix) = 0.0; // By
         B.z(ix) = 1.0; // Bz, uniform magnetic field in z-direction
     }
 }
+
+
+
+
+void load_particles(std::vector<Particle<1>>& particles, GridLayout<1> const& layout)
+{
+    //
+}
+
+
 
 
 int main()
