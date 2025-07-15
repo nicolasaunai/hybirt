@@ -14,7 +14,7 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
-
+#include <algorithm>
 
 
 
@@ -42,19 +42,45 @@ void deposit(std::vector<Particle<1>>& particles, Field<dimension>& N, VecField<
 }
 
 
+template<std::size_t dimension>
+void average(Field<dimension> const& F1, Field<dimension> const& F2, Field<dimension>& Favg)
+{
+    std::transform(F1.begin(), F1.end(), F2.begin(), Favg.begin(),
+                   [](double const& f1, double const& f2) { return 0.5 * (f1 + f2); });
+}
+
 
 template<std::size_t dimension>
 void average(VecField<dimension> const& V1, VecField<dimension> const& V2,
              VecField<dimension>& Vavg)
 {
-    // placeholder
+    average(V1.x, V2.x, Vavg.x);
+    average(V1.y, V2.y, Vavg.y);
+    average(V1.z, V2.z, Vavg.z);
+}
+
+
+void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
+{
+    // Initialize magnetic field B
+    for (auto ix = layout.primal_dom_start(Direction::X); ix <= layout.primal_dom_end(Direction::X);
+         ++ix)
+    {
+        auto x = layout.coordinate(Direction::X, Quantity::Bx, ix);
+        auto y = layout.coordinate(Direction::X, Quantity::By, ix);
+        auto z = layout.coordinate(Direction::X, Quantity::Bz, ix);
+
+        B.x(ix) = 1.0; // Bx
+        B.y(ix) = 0.0; // By
+        B.z(ix) = 1.0; // Bz, uniform magnetic field in z-direction
+    }
 }
 
 
 int main()
 {
     double time                     = 0.;
-    double final_time               = 0.004;
+    double final_time               = 0.001;
     double dt                       = 0.001;
     std::size_t constexpr dimension = 1;
 
@@ -73,12 +99,18 @@ int main()
     VecField<dimension> F{layout, {Quantity::Vx, Quantity::Vy, Quantity::Vz}};
     VecField<dimension> V{layout, {Quantity::Vx, Quantity::Vy, Quantity::Vz}};
     Field<dimension> N{layout->allocate(Quantity::N), Quantity::N};
-    std::vector<Particle<dimension>> particles;
+
+    auto constexpr nppc = 100;
+    std::vector<Particle<dimension>> particles(layout->nbr_cells(Direction::X) * nppc);
+
+
+    magnetic_init(B, *layout);
+    // load_particles(particles);
 
 
     Faraday<dimension> faraday{layout, dt};
     Ampere<dimension> ampere{layout};
-    Ohm<dimension> ohm;
+    Ohm<dimension> ohm{layout};
 
     auto boundary_condition = BoundaryConditionFactory<dimension>::create("periodic", layout);
 

@@ -45,6 +45,12 @@ public:
         }
     }
 
+
+    auto begin() { return m_data.begin(); }
+    auto end() { return m_data.end(); }
+    auto const begin() const { return m_data.begin(); }
+    auto const end() const { return m_data.end(); }
+
     auto quantity() const { return m_qty; }
 
 

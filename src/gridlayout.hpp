@@ -64,6 +64,12 @@ public:
 
     auto cell_size(Direction dir_idx) const { return m_cell_size[dir_idx]; }
 
+    template<typename... Index>
+    auto coordinate(Direction dir, Quantity qty, Index... index) const
+    {
+        return 0.; // Placeholder for coordinate calculation logic
+    }
+
     auto allocate(Quantity qty) const
     {
         // Placeholder for allocation logic
