@@ -12,9 +12,9 @@ struct VecField
 {
     VecField(std::shared_ptr<GridLayout<dimension>> const& gridlayout,
              std::array<Quantity, 3> quantities)
-        : x{gridlayout->allocate(quantities[0])}
-        , y{gridlayout->allocate(quantities[1])}
-        , z{gridlayout->allocate(quantities[2])}
+        : x{gridlayout->allocate(quantities[0]), quantities[0]}
+        , y{gridlayout->allocate(quantities[1]), quantities[1]}
+        , z{gridlayout->allocate(quantities[2]), quantities[2]}
     {
         // Initialize the vector field with the grid layout
     }
