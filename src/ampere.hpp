@@ -10,11 +10,40 @@ template<std::size_t dimension>
 class Ampere
 {
 public:
+    Ampere(std::shared_ptr<GridLayout<dimension>> grid)
+        : m_grid{grid}
+    {
+        if (!m_grid)
+            throw std::runtime_error("GridLayout is null");
+    }
+
     void operator()(VecField<dimension> const& B, VecField<dimension>& J)
     {
-        // Placeholder implementation
-        std::cout << "ampere called\n";
+        std::cout << "Ampere called\n";
+        auto const dx = m_grid->cell_size(Direction::X);
+
+        if constexpr (dimension == 1)
+        {
+            // Jy and Jz are primal in x
+            for (auto ix = m_grid->primal_dom_start(Direction::X);
+                 ix <= m_grid->primal_dom_end(Direction::X); ++ix)
+            {
+                auto& Jy = J.y;
+                auto& Jz = J.z;
+
+                auto const& By = B.y;
+                auto const& Bz = B.z;
+
+                Jy(ix) = -(Bz(ix + 1) - Bz(ix)) / dx;
+                Jz(ix) = (By(ix + 1) - By(ix)) / dx;
+            }
+        }
+        else
+            throw std::runtime_error("Ampere not implemented for this dimension");
     }
+
+private:
+    std::shared_ptr<GridLayout<dimension>> m_grid;
 };
 
 #endif // HYBRIDIR_AMPERE_HPP

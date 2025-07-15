@@ -73,9 +73,9 @@ int main()
     std::vector<Particle<dimension>> particles;
 
 
-    Ampere<dimension> ampere;
+    Faraday<dimension> faraday{layout, dt};
+    Ampere<dimension> ampere{layout};
     Ohm<dimension> ohm;
-    Faraday<dimension> faraday;
 
 
     while (time < final_time)

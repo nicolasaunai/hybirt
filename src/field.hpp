@@ -17,6 +17,31 @@ public:
     {
     }
 
+
+    template<typename... Indexes>
+    double& operator()(Indexes... ijk)
+    {
+        auto indexes = std::forward_as_tuple(ijk...);
+
+        if constexpr (dimension == 1)
+        {
+            auto index = std::get<0>(indexes);
+            return m_data[index];
+        }
+    }
+
+    template<typename... Indexes>
+    double const& operator()(Indexes... ijk) const
+    {
+        auto indexes = std::forward_as_tuple(ijk...);
+
+        if constexpr (dimension == 1)
+        {
+            auto index = std::get<0>(indexes);
+            return m_data[index];
+        }
+    }
+
 private:
     std::array<std::size_t, dimension> m_size;
     std::vector<double> m_data;

@@ -36,6 +36,7 @@ public:
         return m_nbr_cells[dir_idx] + primal_dom_start(dir_idx);
     }
 
+    auto cell_size(Direction dir_idx) const { return m_cell_size[dir_idx]; }
 
     auto allocate(Quantity qty)
     {
