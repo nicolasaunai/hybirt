@@ -154,11 +154,12 @@ int main()
     Field<dimension> N{layout->allocate(Quantity::N), Quantity::N};
 
     auto constexpr nppc = 100;
-    std::vector<Particle<dimension>> particles(layout->nbr_cells(Direction::X) * nppc);
+    std::vector<Particle<dimension>> particles;
 
 
     magnetic_init(B, *layout);
     load_particles(particles, *layout, nppc);
+    std::cout << "Loaded " << particles.size() << " particles.\n";
 
 
     Faraday<dimension> faraday{layout, dt};
