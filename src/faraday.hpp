@@ -29,11 +29,10 @@ public:
 
         if constexpr (dimension == 1)
         {
-            for (auto ix = m_grid->dual_dom_start(Direction::X);
-                 ix <= m_grid->dual_dom_end(Direction::X); ++ix)
+            for (auto ix = m_grid->ghost_start(Quantity::By, Direction::X);
+                 ix <= m_grid->ghost_end(Quantity::By, Direction::X); ++ix)
             {
                 // By and Bz loop
-                auto const& Bx = B.x;
                 auto const& By = B.y;
                 auto const& Bz = B.z;
 
@@ -44,9 +43,17 @@ public:
                 auto& Bnewy = Bnew.y;
                 auto& Bnewz = Bnew.z;
 
-                Bnewx(ix) = Bx(ix);
                 Bnewy(ix) = By(ix) + m_dt * (Ez(ix + 1) - Ez(ix)) / dx;
                 Bnewz(ix) = Bz(ix) - m_dt * (Ey(ix + 1) - Ey(ix)) / dx;
+            }
+
+            for (auto ix = m_grid->ghost_start(Quantity::Bx, Direction::X);
+                 ix <= m_grid->ghost_end(Quantity::Bx, Direction::X); ++ix)
+            {
+                // By and Bz loop
+                auto const& Bx = B.x;
+                auto& Bnewx    = Bnew.x;
+                Bnewx(ix)      = Bx(ix);
             }
         }
         else

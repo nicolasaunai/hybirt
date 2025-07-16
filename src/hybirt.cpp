@@ -197,7 +197,7 @@ int main()
         boundary_condition->fill(Bavg);
 
         // save particles at t=n before updating to predicted t=n+1
-        // because predictor 2 willre-start from t=n
+        // because predictor 2 will re-start from t=n
         auto save{particles};
         push(particles, Eavg, Bavg);
         boundary_condition->particles(particles);

@@ -14,6 +14,41 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_program(Git git)
+
+function(hybirt_git_get_or_update name dir url branch)
+  if (NOT EXISTS ${dir})
+    message("cloning ${url} ${branch}  into ${dir}")
+    execute_process(
+      COMMAND ${Git} clone ${url} ${dir} -b ${branch} --recursive --depth 1 --shallow-submodules
+    )
+    message("super")
+endif()
+endfunction(hybirt_git_get_or_update)
+
+function(hybirt_github_get_or_update name dir repo branch)
+  hybirt_git_get_or_update(${name} ${dir} https://github.com/${repo} ${branch})
+endfunction(hybirt_github_get_or_update)
+
+
+if(NOT DEFINED HYBIRT_HIGHFIVE_VERSION)
+    SET(HYBIRT_HIGHFIVE_VERSION "main")
+endif()
+
+set (HIGHFIVE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/subprojects/highfive)
+
+hybirt_github_get_or_update(HighFive ${HIGHFIVE_SRC} highfive-devs/highfive ${HYBIRT_HIGHFIVE_VERSION})
+
+set(HIGHFIVE_UNIT_TESTS OFF) # silence warning
+set(HIGHFIVE_USE_BOOST OFF)
+set(HIGHFIVE_BUILD_DOCS OFF) # conflicts with phare doc target
+set(HIGHFIVE_EXAMPLES OFF)
+
+add_subdirectory(${HIGHFIVE_SRC})
+
+message("HighFive enabled - checking HDF5")
+
+
 
 set(SOURCE_INC
    src/ampere.hpp
