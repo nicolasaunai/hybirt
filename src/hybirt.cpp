@@ -8,6 +8,7 @@
 #include "gridlayout.hpp"
 #include "boundary_condition.hpp"
 #include "moments.hpp"
+#include "pusher.hpp"
 
 #include <iostream>
 #include <array>
@@ -15,26 +16,10 @@
 #include <cstdint>
 #include <memory>
 #include <algorithm>
+#include <random>
+#include <optional>
 
 
-
-template<std::size_t dimension>
-struct Particle
-{
-    std::array<double, dimension> position;
-    std::array<double, 3> v; // velocity
-    double weight;
-};
-
-
-
-
-template<std::size_t dimension>
-void push(std::vector<Particle<1>>& particles, VecField<dimension> const& Eavg,
-          VecField<dimension> const& Bavg, double dt)
-{
-    // Placeholder implementation for pushing particles
-}
 
 
 template<std::size_t dimension>
@@ -101,11 +86,40 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
     }
 }
 
+std::mt19937_64 getRNG(std::optional<std::size_t> const& seed)
+{
+    if (!seed.has_value())
+    {
+        std::random_device randSeed;
+        std::seed_seq seed_seq{randSeed(), randSeed(), randSeed(), randSeed(),
+                               randSeed(), randSeed(), randSeed(), randSeed()};
+        return std::mt19937_64(seed_seq);
+    }
+    return std::mt19937_64(*seed);
+}
+
+
+void maxwellianVelocity(std::array<double, 3> const& V, std::array<double, 3> const& Vth,
+                        std::mt19937_64& generator, std::array<double, 3>& partVelocity)
+{
+    std::normal_distribution<> maxwellX(V[0], Vth[0]);
+    std::normal_distribution<> maxwellY(V[1], Vth[1]);
+    std::normal_distribution<> maxwellZ(V[2], Vth[2]);
+
+    partVelocity[0] = maxwellX(generator);
+    partVelocity[1] = maxwellY(generator);
+    partVelocity[2] = maxwellZ(generator);
+}
+
 
 
 
 void load_particles(std::vector<Particle<1>>& particles, GridLayout<1> const& layout, int nppc)
 {
+    auto randGen = getRNG(std::nullopt);
+    std::array<double, 3> Vth{0.1, 0.1, 0.1}; // thermal velocity in each direction
+    std::array<double, 3> V{1.0, 0.0, 0.0};   // bulk velocity
+
     for (auto iCell = layout.dual_dom_start(Direction::X);
          iCell <= layout.dual_dom_end(Direction::X); ++iCell)
     {
@@ -117,10 +131,10 @@ void load_particles(std::vector<Particle<1>>& particles, GridLayout<1> const& la
         {
             Particle<1> particle;
             particle.position[0] = x;
-            particle.v[0]        = 1.0; // hard-coded velocity
-            particle.v[1]        = 0.0;
-            particle.v[2]        = 0.0;
-            particle.weight      = cell_weight;
+            maxwellianVelocity(V, Vth, randGen, particle.v);
+            particle.weight = cell_weight;
+            particle.mass   = 1.0; // hard-coded mass
+            particle.charge = 1.0; // hard-coded charge
 
             particles.push_back(particle);
         }
@@ -153,7 +167,7 @@ int main()
     VecField<dimension> V{layout, {Quantity::Vx, Quantity::Vy, Quantity::Vz}};
     Field<dimension> N{layout->allocate(Quantity::N), Quantity::N};
 
-    auto constexpr nppc = 100;
+    auto constexpr nppc = 1;
     std::vector<Particle<dimension>> particles;
 
 
@@ -165,6 +179,7 @@ int main()
     Faraday<dimension> faraday{layout, dt};
     Ampere<dimension> ampere{layout};
     Ohm<dimension> ohm{layout};
+    Boris<dimension> push{layout, dt};
 
     auto boundary_condition = BoundaryConditionFactory<dimension>::create("periodic", layout);
 
@@ -181,7 +196,11 @@ int main()
         boundary_condition->fill(Eavg);
         boundary_condition->fill(Bavg);
 
-        push(particles, Eavg, Bavg, dt);
+        // save particles at t=n before updating to predicted t=n+1
+        // because predictor 2 willre-start from t=n
+        auto save{particles};
+        push(particles, Eavg, Bavg);
+        boundary_condition->particles(particles);
         deposit(particles, N, F);
         bulk_velocity<dimension>(N, F, V);
         boundary_condition->fill(N);
@@ -198,7 +217,9 @@ int main()
         boundary_condition->fill(Eavg);
         boundary_condition->fill(Bavg);
 
-        push(particles, Eavg, Bavg, dt);
+        particles = save;
+        push(particles, Eavg, Bavg);
+        boundary_condition->particles(particles);
         deposit(particles, N, V);
         deposit(particles, N, F);
         bulk_velocity<dimension>(N, F, V);

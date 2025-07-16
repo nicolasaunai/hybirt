@@ -3,6 +3,7 @@
 
 #include "field.hpp"
 #include "vecfield.hpp"
+#include "pusher.hpp"
 
 #include <iostream>
 #include <memory>
@@ -29,6 +30,8 @@ public:
         fill(vecfield.y);
         fill(vecfield.z);
     }
+
+    virtual void particles(std::vector<Particle<dimension>>& particles) = 0;
 
 protected:
     std::shared_ptr<GridLayout<dimension>> const& m_grid;
@@ -71,6 +74,32 @@ public:
                 auto const ix_left = ix_right - dom_size;
                 // std::cout << "field(" << ix_right << ") = field(" << ix_left << ")\n";
                 field(ix_right) = field(ix_left);
+            }
+        }
+    }
+
+    void particles(std::vector<Particle<dimension>>& particles) override
+    {
+        if constexpr (dimension == 1)
+        {
+            for (auto& particle : particles)
+            {
+                double cell = static_cast<int>(particle.position[0]
+                                               / this->m_grid->cell_size(Direction::X));
+
+                // particles left the right border injected on left side
+                if (cell > this->m_grid->dual_dom_end(Direction::X))
+                {
+                    cell -= this->m_grid->nbr_cells(Direction::X);
+                    particle.position[0] = cell;
+                }
+                // particles left the left border injected on right side
+                else if (cell < this->m_grid->dual_dom_start(Direction::X))
+                {
+                    // Wrap around tothe right side
+                    cell += this->m_grid->nbr_cells(Direction::X);
+                    particle.position[0] = cell;
+                }
             }
         }
     }
