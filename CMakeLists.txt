@@ -22,7 +22,6 @@ function(hybirt_git_get_or_update name dir url branch)
     execute_process(
       COMMAND ${Git} clone ${url} ${dir} -b ${branch} --recursive --depth 1 --shallow-submodules
     )
-    message("super")
 endif()
 endfunction(hybirt_git_get_or_update)
 
@@ -66,6 +65,7 @@ set (SOURCE_CPP
 )
 
 add_executable(hybirt ${SOURCE_INC} ${SOURCE_CPP})
+target_link_libraries(hybirt INTERFACE HighFive)
 
 
 
