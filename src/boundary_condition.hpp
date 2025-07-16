@@ -34,7 +34,7 @@ public:
     virtual void particles(std::vector<Particle<dimension>>& particles) = 0;
 
 protected:
-    std::shared_ptr<GridLayout<dimension>> const& m_grid;
+    std::shared_ptr<GridLayout<dimension>> m_grid;
 };
 
 
@@ -59,6 +59,26 @@ public:
 
             auto const dom_size = this->m_grid->nbr_cells(Direction::X);
 
+            if (field.quantity() == Quantity::N or field.quantity() == Quantity::Vx
+                or field.quantity() == Quantity::Vy or field.quantity() == Quantity::Vz)
+            {
+                // std::cout << "Filling left side\n";
+                for (auto ix_left = gsi; ix_left <= dsi; ++ix_left)
+                {
+                    auto const ix_right = ix_left + dom_size;
+                    // std::cout << "field(" << ix_left << ") = field(" << ix_right << ")\n";
+                    field(ix_left) += field(ix_right);
+                }
+
+                // std::cout << "Filling right side\n";
+                for (auto ix_right = gei; ix_right > dei; --ix_right)
+                {
+                    auto const ix_left = ix_right - dom_size;
+                    // std::cout << "field(" << ix_right << ") = field(" << ix_left << ")\n";
+                    field(ix_right) += field(ix_left);
+                }
+                field(dei) = field(dsi);
+            }
 
             // std::cout << "Filling left side\n";
             for (auto ix_left = gsi; ix_left < dsi; ++ix_left)
@@ -84,21 +104,22 @@ public:
         {
             for (auto& particle : particles)
             {
-                double cell = static_cast<int>(particle.position[0]
-                                               / this->m_grid->cell_size(Direction::X));
+                double cell
+                    = static_cast<int>(particle.position[0] / this->m_grid->cell_size(Direction::X))
+                      + this->m_grid->dual_dom_start(Direction::X);
 
                 // particles left the right border injected on left side
                 if (cell > this->m_grid->dual_dom_end(Direction::X))
                 {
                     cell -= this->m_grid->nbr_cells(Direction::X);
-                    particle.position[0] = cell;
+                    particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
                 }
                 // particles left the left border injected on right side
                 else if (cell < this->m_grid->dual_dom_start(Direction::X))
                 {
                     // Wrap around tothe right side
                     cell += this->m_grid->nbr_cells(Direction::X);
-                    particle.position[0] = cell;
+                    particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
                 }
             }
         }

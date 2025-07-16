@@ -15,7 +15,7 @@ public:
         : m_size{grid_size}
         , m_data(std::accumulate(grid_size.begin(), grid_size.end(), 1,
                                  std::multiplies<std::size_t>()),
-                 1.0)
+                 0.0)
         , m_qty{qty}
     {
     }
@@ -53,6 +53,8 @@ public:
 
     auto quantity() const { return m_qty; }
 
+    auto data() { return m_data; }
+    auto data() const { return m_data; }
 
 private:
     std::array<std::size_t, dimension> m_size;

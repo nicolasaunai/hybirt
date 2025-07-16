@@ -3,6 +3,8 @@
 
 #include "utils.hpp"
 
+
+#include <iostream>
 #include <cstddef>
 #include <array>
 #include <stdexcept>
