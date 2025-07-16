@@ -67,7 +67,21 @@ public:
     template<typename... Index>
     auto coordinate(Direction dir, Quantity qty, Index... index) const
     {
-        return 0.; // Placeholder for coordinate calculation logic
+        auto idx  = std::array<std::size_t, dimension>{index...};
+        auto xmin = 0. - m_nbr_ghosts * m_cell_size[dir];
+        auto x    = xmin + idx[0] * m_cell_size[dir];
+        x += (centerings(qty)[0] == dual ? 0.5 : 0.0) * m_cell_size[dir];
+        return x;
+    }
+
+    template<typename... Index>
+    auto cell_coordinate(Direction dir, Index... index) const
+    {
+        auto idx  = std::array<std::size_t, dimension>{index...};
+        auto xmin = 0. - m_nbr_ghosts * m_cell_size[dir];
+        auto x    = xmin + idx[0] * m_cell_size[dir];
+        x += 0.5 * m_cell_size[dir];
+        return x;
     }
 
     auto allocate(Quantity qty) const

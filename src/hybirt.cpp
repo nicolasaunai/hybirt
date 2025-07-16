@@ -23,6 +23,7 @@ struct Particle
 {
     std::array<double, dimension> position;
     std::array<double, 3> v; // velocity
+    double weight;
 };
 
 
@@ -60,6 +61,32 @@ void average(VecField<dimension> const& V1, VecField<dimension> const& V2,
 }
 
 
+double bx(double x)
+{
+    // Placeholder for a function that returns Bx based on x
+    return 1.0; // Example value
+}
+
+double by(double x)
+{
+    // Placeholder for a function that returns By based on x
+    return 0.0; // Example value
+}
+
+
+double bz(double x)
+{
+    // Placeholder for a function that returns Bz based on x
+    return 1.0; // Example value
+}
+
+
+double density(double x)
+{
+    // Placeholder for a function that returns density based on x
+    return 1.0; // Example value
+}
+
 void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
 {
     // Initialize magnetic field B
@@ -68,18 +95,36 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
     {
         auto x = layout.coordinate(Direction::X, Quantity::Bx, ix);
 
-        B.x(ix) = 1.0; // Bx
-        B.y(ix) = 0.0; // By
-        B.z(ix) = 1.0; // Bz, uniform magnetic field in z-direction
+        B.x(ix) = bx(x); // Bx
+        B.y(ix) = by(x); // By
+        B.z(ix) = bz(x); // Bz, uniform magnetic field in z-direction
     }
 }
 
 
 
 
-void load_particles(std::vector<Particle<1>>& particles, GridLayout<1> const& layout)
+void load_particles(std::vector<Particle<1>>& particles, GridLayout<1> const& layout, int nppc)
 {
-    //
+    for (auto iCell = layout.dual_dom_start(Direction::X);
+         iCell <= layout.dual_dom_end(Direction::X); ++iCell)
+    {
+        auto const x      = layout.cell_coordinate(Direction::X, iCell);
+        auto cell_density = density(x);
+
+        auto cell_weight = cell_density / nppc;
+        for (auto partIdx = 0; partIdx < nppc; ++partIdx)
+        {
+            Particle<1> particle;
+            particle.position[0] = x;
+            particle.v[0]        = 1.0; // hard-coded velocity
+            particle.v[1]        = 0.0;
+            particle.v[2]        = 0.0;
+            particle.weight      = cell_weight;
+
+            particles.push_back(particle);
+        }
+    }
 }
 
 
@@ -113,7 +158,7 @@ int main()
 
 
     magnetic_init(B, *layout);
-    // load_particles(particles);
+    load_particles(particles, *layout, nppc);
 
 
     Faraday<dimension> faraday{layout, dt};
