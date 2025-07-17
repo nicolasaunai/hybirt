@@ -78,16 +78,12 @@ public:
             double const by = interpolate(B.y, iCell, reminder);
             double const bz = interpolate(B.z, iCell, reminder);
 
-            // std::cout << "Particle position: " << particle.position[0] << ", iCell: " << iCell
-            //           << ", reminder: " << reminder << ", E: (" << ex << ", " << ey << ", " << ez
-            //           << "), B: (" << bx << ", " << by << ", " << bz << "), qdto2m: " << qdto2m
-            //           << "dt: " << this->dt_ << ", mass: " << particle.mass
-            //           << ", charge: " << particle.charge << "\n";
 
             // Calculate the half-step velocity
             auto const vminus_x = particle.v[0] + qdto2m * ex;
             auto const vminus_y = particle.v[1] + qdto2m * ey;
             auto const vminus_z = particle.v[2] + qdto2m * ez;
+
 
 
             auto const vprime_x = vminus_x + qdto2m * (vminus_y * bz - vminus_z * by);

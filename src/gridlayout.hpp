@@ -31,6 +31,8 @@ public:
 
     auto nbr_cells(Direction dir_idx) const { return m_nbr_cells[dir_idx]; }
 
+    auto dom_size(Direction dir_idx) const { return m_nbr_cells[dir_idx] * m_cell_size[dir_idx]; }
+
     auto dual_dom_start(Direction dir_idx) const { return m_nbr_ghosts; }
     auto dual_dom_end(Direction dir_idx) const
     {
