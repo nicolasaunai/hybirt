@@ -51,7 +51,7 @@ message("HighFive enabled - checking HDF5")
 
 set(SOURCE_INC
    src/ampere.hpp
-   src/boris.hpp
+   src/pusher.hpp
    src/faraday.hpp
    src/field.hpp
    src/ohm.hpp
@@ -66,7 +66,10 @@ set (SOURCE_CPP
 
 add_executable(hybirt ${SOURCE_INC} ${SOURCE_CPP})
 
-target_link_libraries(hybirt PRIVATE  HighFive)
+target_link_libraries(hybirt PRIVATE HighFive)
+
+
+add_subdirectory(tests/boris)
 
 
 

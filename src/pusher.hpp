@@ -62,8 +62,8 @@ public:
                 particle.position[dim] += particle.v[dim] * this->dt_ * 0.5;
             }
 
-            double const iCell_float
-                = particle.position[0] / this->layout_->cell_size(Direction::X);
+            double const iCell_float = particle.position[0] / this->layout_->cell_size(Direction::X)
+                                       + this->layout_->dual_dom_start(Direction::X);
             int const iCell       = static_cast<int>(iCell_float);
             double const reminder = iCell_float - iCell;
             double const qdto2m   = particle.charge * this->dt_ / (2.0 * particle.mass);
@@ -78,11 +78,16 @@ public:
             double const by = interpolate(B.y, iCell, reminder);
             double const bz = interpolate(B.z, iCell, reminder);
 
+            // std::cout << "Particle position: " << particle.position[0] << ", iCell: " << iCell
+            //           << ", reminder: " << reminder << ", E: (" << ex << ", " << ey << ", " << ez
+            //           << "), B: (" << bx << ", " << by << ", " << bz << "), qdto2m: " << qdto2m
+            //           << "dt: " << this->dt_ << ", mass: " << particle.mass
+            //           << ", charge: " << particle.charge << "\n";
 
             // Calculate the half-step velocity
             auto const vminus_x = particle.v[0] + qdto2m * ex;
-            auto const vminus_y = particle.v[0] + qdto2m * ey;
-            auto const vminus_z = particle.v[0] + qdto2m * ez;
+            auto const vminus_y = particle.v[1] + qdto2m * ey;
+            auto const vminus_z = particle.v[2] + qdto2m * ez;
 
 
             auto const vprime_x = vminus_x + qdto2m * (vminus_y * bz - vminus_z * by);
@@ -90,7 +95,7 @@ public:
             auto const vprime_z = vminus_z + qdto2m * (vminus_x * by - vminus_y * bx);
 
 
-            auto const s       = 2 / (1 + qdto2m * qdto2m * (bx * bx + by * by + bz * bz));
+            auto const s       = 2 * qdto2m / (1 + qdto2m * qdto2m * (bx * bx + by * by + bz * bz));
             auto const vplus_x = vminus_x + s * (vprime_y * bz - vprime_z * by);
             auto const vplus_y = vminus_y + s * (vprime_z * bx - vprime_x * bz);
             auto const vplus_z = vminus_z + s * (vprime_x * by - vprime_y * bx);
