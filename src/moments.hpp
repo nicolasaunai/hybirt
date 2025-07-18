@@ -9,7 +9,7 @@
 
 
 template<std::size_t dimension>
-void density(std::vector<Population<dimension>> const& populations, Field<dimension>& N)
+void total_density(std::vector<Population<dimension>> const& populations, Field<dimension>& N)
 {
     for (auto const& pop : populations)
     {

@@ -130,7 +130,7 @@ int main()
     for (auto& pop : populations)
         pop.deposit();
 
-    density(populations, N);
+    total_density(populations, N);
     boundary_condition->fill(N);
     bulk_velocity<dimension>(populations, N, V);
     boundary_condition->fill(V);
@@ -161,7 +161,7 @@ int main()
             boundary_condition->particles(pop.particles());
             pop.deposit();
         }
-        density(populations, N);
+        total_density(populations, N);
         boundary_condition->fill(N);
         bulk_velocity<dimension>(populations, N, V);
         boundary_condition->fill(V);
@@ -183,7 +183,7 @@ int main()
             boundary_condition->particles(pop.particles());
             pop.deposit();
         }
-        density(populations, N);
+        total_density(populations, N);
         boundary_condition->fill(N);
         bulk_velocity<dimension>(populations, N, V);
         boundary_condition->fill(V);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20.1)
-project(test-boris)
-set(SOURCES test_boris.cpp
+project(test-ion_beam)
+set(SOURCES test_ionbeam.cpp
     ${CMAKE_SOURCE_DIR}/src/pusher.hpp
     ${CMAKE_SOURCE_DIR}/src/vecfield.hpp
     ${CMAKE_SOURCE_DIR}/src/field.hpp
