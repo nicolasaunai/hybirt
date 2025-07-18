@@ -3,20 +3,11 @@
 
 
 #include "vecfield.hpp"
+#include "particle.hpp"
 
 #include <cstddef>
 #include <vector>
-#include <array>
 
-template<std::size_t dimension>
-struct Particle
-{
-    std::array<double, dimension> position;
-    std::array<double, 3> v; // velocity
-    double weight;
-    double mass;
-    double charge;
-};
 
 template<std::size_t dimension>
 class Pusher

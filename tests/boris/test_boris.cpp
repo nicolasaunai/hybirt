@@ -7,6 +7,7 @@
 
 void uniform_bz()
 {
+    std::cout << "Running uniform_bz test...\n";
     Particle<1> particle;
     particle.position[0] = 5.05;
     particle.v[0]        = 0.0;
@@ -79,12 +80,11 @@ void uniform_bz()
         file.createDataSet("/vy", vy);
         file.createDataSet("/vz", vz);
     }
-
-    std::cout << "This is a test for the Boris pusher in a hybrid simulation.\n";
 }
 
 void drift_ey()
 {
+    std::cout << "Running drift_ey test...\n";
     Particle<1> particle;
     particle.position[0] = 5.05;
     particle.v[0]        = 0.0;
@@ -158,8 +158,6 @@ void drift_ey()
         file.createDataSet("/vy", vy);
         file.createDataSet("/vz", vz);
     }
-
-    std::cout << "This is a test for the Boris pusher in a hybrid simulation.\n";
 }
 
 int main()
