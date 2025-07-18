@@ -59,7 +59,7 @@ public:
     {
         static_assert(dimension == 1, "Population only implemented for 1D");
         auto randGen = getRNG(std::nullopt);
-        std::array<double, 3> Vth{0.1, 0.1, 0.1}; // thermal velocity in each direction
+        std::array<double, 3> Vth{0.5, 0.5, 0.5}; // thermal velocity in each direction
         std::array<double, 3> V{1.0, 0.0, 0.0};   // bulk velocity
 
         for (auto iCell = m_grid->dual_dom_start(Direction::X);
@@ -73,17 +73,17 @@ public:
             {
                 Particle<1> particle;
                 particle.position[0]
-                    = x + 0.0 * m_grid->cell_size(Direction::X); // center of the cell
+                    = x + 0.5 * m_grid->cell_size(Direction::X); // center of the cell
                 maxwellianVelocity(V, Vth, randGen, particle.v);
                 particle.weight = cell_weight;
                 particle.mass   = 1.0; // hard-coded mass
                 particle.charge = 1.0; // hard-coded charge
 
-                std::cout << "Particle " << m_particles.size() << ": "
-                          << "Position: " << particle.position[0] << ", "
-                          << "Velocity: (" << particle.v[0] << ", " << particle.v[1] << ", "
-                          << particle.v[2] << "), "
-                          << "Weight: " << particle.weight << "\n";
+                // std::cout << "Particle " << m_particles.size() << ": "
+                //           << "Position: " << particle.position[0] << ", "
+                //           << "Velocity: (" << particle.v[0] << ", " << particle.v[1] << ", "
+                //           << particle.v[2] << "), "
+                //           << "Weight: " << particle.weight << "\n";
                 m_particles.push_back(particle);
             }
         }
@@ -112,9 +112,9 @@ public:
             double const reminder    = iCell_float - iCell_;
             auto const iCell         = iCell_ + m_grid->dual_dom_start(Direction::X);
 
-            std::cout << "Depositing particle position: " << particle.position[0]
-                      << ", iCell: " << iCell << ", reminder: " << reminder
-                      << ", weight: " << particle.weight << "\n";
+            // std::cout << "Depositing particle position: " << particle.position[0]
+            //           << ", iCell: " << iCell << ", reminder: " << reminder
+            //           << ", weight: " << particle.weight << "\n";
 
             m_density(iCell) += particle.weight * (1.0 - reminder);
             m_density(iCell + 1) += particle.weight * reminder;

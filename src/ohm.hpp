@@ -18,13 +18,14 @@ public:
             throw std::runtime_error("GridLayout is null");
     }
     void operator()(VecField<dimension> const& B, VecField<dimension> const& J, Field<dimension>& N,
-                    VecField<dimension>& V, VecField<dimension>& Enew)
+                    VecField<dimension> const& V, VecField<dimension>& Enew)
 
     {
         // Placeholder implementation
-        std::cout << "ohm called\n";
+        // std::cout << "ohm called\n";
         // Ex = -(Vy * Bz - Vz * By) + (JyBz - JzBy) / N;
 
+        auto const dx = m_grid->cell_size(Direction::X);
         if constexpr (dimension == 1)
         {
             // Ex is dual in x
@@ -34,6 +35,7 @@ public:
                 auto const& By = B.y;
                 auto const& Bz = B.z;
 
+                auto const& Jx = J.x;
                 auto const& Jy = J.y;
                 auto const& Jz = J.z;
 
@@ -50,8 +52,14 @@ public:
 
                 auto const ideal_x = -(Vy_dual * Bz(ix) - Vz_dual * By(ix));
                 auto const hall_x  = (Jy(ix) * Bz(ix) - Jz(ix) * By(ix)) / N_dual;
+                // std::cout << "hall_x at ix " << ix << ": " << hall_x << " jy: " << Jy(ix)
+                //           << ", jz: " << Jz(ix) << ", by: " << By(ix) << ", bz: " << Bz(ix)
+                //           << ", n: " << N_dual << " N(ix + 1): " << N(ix + 1) << " N(ix) << "
+                //           << N(ix) << "\n";
 
                 Ex(ix) = ideal_x + hall_x;
+                // - 0.001 * (Jx(ix + 1) - 2 * Jx(ix) + Jx(ix - 1))
+                //       / (dx * dx); // + 0.001*Jx(ix);
             }
 
             // Ey is primal in x, so is Ez

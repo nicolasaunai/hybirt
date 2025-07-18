@@ -57,7 +57,9 @@ public:
             auto dei = this->m_grid->dom_end(field.quantity(), Direction::X);
             auto gei = this->m_grid->ghost_end(field.quantity(), Direction::X);
 
-            auto const dom_size = this->m_grid->nbr_cells(Direction::X);
+            // auto const nbr_nodes = this->m_grid->nbr_dom_nodes(field.quantity(), Direction::X);
+            auto const nbr_nodes = this->m_grid->nbr_cells(Direction::X);
+            // std::cout << "nbr_nodes: " << nbr_nodes << "\n";
 
             if (field.quantity() == Quantity::N or field.quantity() == Quantity::Vx
                 or field.quantity() == Quantity::Vy or field.quantity() == Quantity::Vz)
@@ -65,35 +67,42 @@ public:
                 // std::cout << "Filling left side\n";
                 for (auto ix_left = gsi; ix_left <= dsi; ++ix_left)
                 {
-                    auto const ix_right = ix_left + dom_size;
-                    // std::cout << "field(" << ix_left << ") = field(" << ix_right << ")\n";
+                    auto const ix_right = ix_left + nbr_nodes;
+                    // if (field.quantity() == Quantity::N)
+                    //     std::cout << "field(" << ix_left << ") += field(" << ix_right << ") "
+                    //               << field(ix_left) << "+=" << field(ix_right) << "\n";
                     field(ix_left) += field(ix_right);
                 }
 
                 // std::cout << "Filling right side\n";
                 for (auto ix_right = gei; ix_right > dei; --ix_right)
                 {
-                    auto const ix_left = ix_right - dom_size;
-                    // std::cout << "field(" << ix_right << ") = field(" << ix_left << ")\n";
+                    auto const ix_left = ix_right - nbr_nodes;
+                    // if (field.quantity() == Quantity::N)
+                    //     std::cout << "field(" << ix_right << ") += field(" << ix_left << ")\n";
                     field(ix_right) += field(ix_left);
                 }
                 field(dei) = field(dsi);
             }
-
-            // std::cout << "Filling left side\n";
-            for (auto ix_left = gsi; ix_left < dsi; ++ix_left)
+            else
             {
-                auto const ix_right = ix_left + dom_size;
-                // std::cout << "field(" << ix_left << ") = field(" << ix_right << ")\n";
-                field(ix_left) = field(ix_right);
-            }
+                // std::cout << "Filling left side\n";
+                for (auto ix_left = gsi; ix_left < dsi; ++ix_left)
+                {
+                    auto const ix_right = ix_left + nbr_nodes;
+                    // if (field.quantity() == Quantity::Bz)
+                    //     std::cout << "field(" << ix_left << ") = field(" << ix_right << ")\n";
+                    field(ix_left) = field(ix_right);
+                }
 
-            // std::cout << "Filling right side\n";
-            for (auto ix_right = gei; ix_right > dei; --ix_right)
-            {
-                auto const ix_left = ix_right - dom_size;
-                // std::cout << "field(" << ix_right << ") = field(" << ix_left << ")\n";
-                field(ix_right) = field(ix_left);
+                // std::cout << "Filling right side\n";
+                for (auto ix_right = gei; ix_right > dei; --ix_right)
+                {
+                    auto const ix_left = ix_right - nbr_nodes;
+                    // if (field.quantity() == Quantity::Bz)
+                    //     std::cout << "field(" << ix_right << ") = field(" << ix_left << ")\n";
+                    field(ix_right) = field(ix_left);
+                }
             }
         }
     }

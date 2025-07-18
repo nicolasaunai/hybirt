@@ -31,6 +31,11 @@ public:
 
     auto nbr_cells(Direction dir_idx) const { return m_nbr_cells[dir_idx]; }
 
+    auto nbr_dom_nodes(Quantity qty, Direction dir_idx) const
+    {
+        return m_nbr_cells[dir_idx] + ((centerings(qty)[dir_idx] == primal) ? 1 : 0);
+    }
+
     auto dom_size(Direction dir_idx) const { return m_nbr_cells[dir_idx] * m_cell_size[dir_idx]; }
 
     auto dual_dom_start(Direction dir_idx) const { return m_nbr_ghosts; }

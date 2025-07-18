@@ -24,7 +24,7 @@ public:
     void operator()(VecField<dimension> const& B, VecField<dimension> const& E,
                     VecField<dimension>& Bnew)
     {
-        std::cout << "faraday called\n";
+        // std::cout << "faraday called\n";
         auto const dx = m_grid->cell_size(Direction::X);
 
         if constexpr (dimension == 1)

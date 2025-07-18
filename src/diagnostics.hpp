@@ -25,6 +25,7 @@ auto to_string_fixed_width(T const& value, std::size_t const& precision, std::si
 
 
 
+
 template<std::size_t dim>
 void diags_write_fields(VecField<dim> const& B, VecField<dim> const& E, VecField<dim> const& V,
                         Field<dim> const& N, double time,
@@ -33,15 +34,15 @@ void diags_write_fields(VecField<dim> const& B, VecField<dim> const& E, VecField
     std::string filename = "fields.h5";
     HighFive::File file(filename, mode);
     auto const time_str = to_string_fixed_width(time, 10, 0);
-    file.createDataSet("/t/" + time_str + "/B/x", B.x.data());
-    file.createDataSet("/t/" + time_str + "/B/y", B.y.data());
-    file.createDataSet("/t/" + time_str + "/B/z", B.z.data());
-    file.createDataSet("/t/" + time_str + "/E/x", E.x.data());
-    file.createDataSet("/t/" + time_str + "/E/y", E.y.data());
-    file.createDataSet("/t/" + time_str + "/E/z", E.z.data());
-    file.createDataSet("/t/" + time_str + "/V/x", V.x.data());
-    file.createDataSet("/t/" + time_str + "/V/y", V.y.data());
-    file.createDataSet("/t/" + time_str + "/V/z", V.z.data());
+    file.createDataSet("/t/" + time_str + "/Bx", B.x.data());
+    file.createDataSet("/t/" + time_str + "/By", B.y.data());
+    file.createDataSet("/t/" + time_str + "/Bz", B.z.data());
+    file.createDataSet("/t/" + time_str + "/Ex", E.x.data());
+    file.createDataSet("/t/" + time_str + "/Ey", E.y.data());
+    file.createDataSet("/t/" + time_str + "/Ez", E.z.data());
+    file.createDataSet("/t/" + time_str + "/Vx", V.x.data());
+    file.createDataSet("/t/" + time_str + "/Vy", V.y.data());
+    file.createDataSet("/t/" + time_str + "/Vz", V.z.data());
     file.createDataSet("/t/" + time_str + "/N", N.data());
 }
 

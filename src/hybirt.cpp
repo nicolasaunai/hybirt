@@ -45,7 +45,7 @@ void average(VecField<dimension> const& V1, VecField<dimension> const& V2,
 double bx(double x)
 {
     // Placeholder for a function that returns Bx based on x
-    return 1.0; // Example value
+    return 0.0; // Example value
 }
 
 double by(double x)
@@ -77,6 +77,12 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
         auto x = layout.coordinate(Direction::X, Quantity::Bx, ix);
 
         B.x(ix) = bx(x); // Bx
+    }
+    for (auto ix = layout.dual_dom_start(Direction::X); ix <= layout.dual_dom_end(Direction::X);
+         ++ix)
+    {
+        auto x = layout.coordinate(Direction::X, Quantity::By, ix);
+
         B.y(ix) = by(x); // By
         B.z(ix) = bz(x); // Bz, uniform magnetic field in z-direction
     }
@@ -88,13 +94,14 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
 int main()
 {
     double time                     = 0.;
-    double final_time               = 0.001;
-    double dt                       = 0.001;
+    double final_time               = 0.50;
+    double dt                       = 0.0001;
     std::size_t constexpr dimension = 1;
 
-    std::array<std::size_t, dimension> grid_size = {10};
+    std::array<std::size_t, dimension> grid_size = {100};
     std::array<double, dimension> cell_size      = {0.1};
     auto constexpr nbr_ghosts                    = 1;
+    auto constexpr nppc                          = 100;
 
     auto layout = std::make_shared<GridLayout<dimension>>(grid_size, cell_size, nbr_ghosts);
 
@@ -108,7 +115,8 @@ int main()
     VecField<dimension> V{layout, {Quantity::Vx, Quantity::Vy, Quantity::Vz}};
     Field<dimension> N{layout->allocate(Quantity::N), Quantity::N};
 
-    auto constexpr nppc = 1;
+    auto boundary_condition = BoundaryConditionFactory<dimension>::create("periodic", layout);
+
     std::vector<Population<1>> populations;
     populations.emplace_back("main", layout);
     for (auto& pop : populations)
@@ -116,6 +124,7 @@ int main()
 
 
     magnetic_init(B, *layout);
+    boundary_condition->fill(B);
 
     Faraday<dimension> faraday{layout, dt};
     Ampere<dimension> ampere{layout};
@@ -123,29 +132,33 @@ int main()
     Boris<dimension> push{layout, dt};
 
 
-    auto boundary_condition = BoundaryConditionFactory<dimension>::create("periodic", layout);
 
     ampere(B, J);
     boundary_condition->fill(J);
     for (auto& pop : populations)
+    {
         pop.deposit();
+        boundary_condition->fill(pop.flux());
+        boundary_condition->fill(pop.density());
+    }
 
     total_density(populations, N);
-    boundary_condition->fill(N);
     bulk_velocity<dimension>(populations, N, V);
-    boundary_condition->fill(V);
-    ohm(B, J, N, V, Enew);
+    ohm(B, J, N, V, E);
+    boundary_condition->fill(E);
 
     diags_write_fields(B, E, V, N, time, HighFive::File::Truncate);
     diags_write_particles(populations, time, HighFive::File::Truncate);
 
     while (time < final_time)
     {
+        std::cout << "Time: " << time << " / " << final_time << "\n";
         // predictor 1
         faraday(B, E, Bnew);
-        ampere(B, J);
+        ampere(Bnew, J);
         boundary_condition->fill(J);
-        ohm(B, J, N, V, Enew);
+
+        ohm(Bnew, J, N, V, Enew);
 
         average(E, Enew, Eavg);
         average(B, Bnew, Bavg);
@@ -160,12 +173,11 @@ int main()
             push(pop.particles(), Eavg, Bavg);
             boundary_condition->particles(pop.particles());
             pop.deposit();
+            boundary_condition->fill(pop.flux());
+            boundary_condition->fill(pop.density());
         }
         total_density(populations, N);
-        boundary_condition->fill(N);
         bulk_velocity<dimension>(populations, N, V);
-        boundary_condition->fill(V);
-
         // predictor 2
         faraday(B, Eavg, Bnew);
         ampere(Bnew, J);
@@ -182,11 +194,11 @@ int main()
             push(pop.particles(), Eavg, Bavg);
             boundary_condition->particles(pop.particles());
             pop.deposit();
+            boundary_condition->fill(pop.flux());
+            boundary_condition->fill(pop.density());
         }
         total_density(populations, N);
-        boundary_condition->fill(N);
         bulk_velocity<dimension>(populations, N, V);
-        boundary_condition->fill(V);
 
 
         // corrector
