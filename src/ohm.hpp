@@ -60,7 +60,7 @@ public:
                 //               << ", n: " << N_dual << " N(ix + 1): " << N(ix + 1)
                 //               << " N(ix) = " << N(ix) << "\n";
 
-                Ex(ix) = ideal_x + 1 * hall_x + 0.01 * Jx(ix);
+                Ex(ix) = ideal_x + 1 * hall_x + 0.000 * Jx(ix);
                 // - 0.001 * (Jx(ix + 1) - 2 * Jx(ix) + Jx(ix - 1))
                 //       / (dx * dx); // + 0.001*Jx(ix);
             }
@@ -96,8 +96,8 @@ public:
                 auto const ideal_z = -(Vx(ix) * By_primal - Vy(ix) * Bx(ix));
                 auto const hall_z  = (Jx_primal * By_primal - Jy(ix) * Bx(ix)) / N(ix);
 
-                Ey(ix) = ideal_y + 1 * hall_y + 0.01 * Jy(ix);
-                Ez(ix) = ideal_z + 1 * hall_z + 0.01 * Jz(ix);
+                Ey(ix) = ideal_y + 1 * hall_y + 0.000 * Jy(ix);
+                Ez(ix) = ideal_z + 1 * hall_z + 0.000 * Jz(ix);
             }
         }
         else

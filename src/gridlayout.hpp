@@ -16,11 +16,9 @@ enum class Quantity { E, Ex, Ey, Ez, B, Bx, By, Bz, J, Jx, Jy, Jz, N, V, Vx, Vy,
 template<std::size_t dimension>
 class GridLayout
 {
-private:
+public:
     static constexpr auto dual   = 0;
     static constexpr auto primal = 1;
-
-public:
     GridLayout(std::array<std::size_t, dimension> nbr_cells,
                std::array<double, dimension> cell_size, std::size_t nbr_ghosts)
         : m_nbr_cells{nbr_cells}
@@ -115,7 +113,6 @@ public:
             throw std::runtime_error("Unsupported dimension");
     }
 
-private:
     std::array<std::size_t, dimension> centerings(Quantity qty) const
     {
         switch (qty)
@@ -187,7 +184,7 @@ private:
         }
     }
 
-
+private:
     std::array<std::size_t, dimension> m_nbr_cells;
     std::array<double, dimension> m_cell_size;
     std::size_t m_nbr_ghosts;

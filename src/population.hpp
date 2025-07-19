@@ -59,8 +59,8 @@ public:
     {
         static_assert(dimension == 1, "Population only implemented for 1D");
         auto randGen = getRNG(std::nullopt);
-        std::array<double, 3> Vth{0.5, 0.5, 0.5}; // thermal velocity in each direction
-        std::array<double, 3> V{1.0, 0.0, 0.0};   // bulk velocity
+        std::array<double, 3> Vth{0.2, 0.2, 0.2}; // thermal velocity in each direction
+        std::array<double, 3> V{0.0, 0.0, 0.0};   // bulk velocity
 
         for (auto iCell = m_grid->dual_dom_start(Direction::X);
              iCell <= m_grid->dual_dom_end(Direction::X); ++iCell)
@@ -73,7 +73,7 @@ public:
             {
                 Particle<1> particle;
                 particle.position[0]
-                    = x + 0.5 * m_grid->cell_size(Direction::X); // center of the cell
+                    = x + 0.0 * m_grid->cell_size(Direction::X); // center of the cell
                 maxwellianVelocity(V, Vth, randGen, particle.v);
                 particle.weight = cell_weight;
                 particle.mass   = 1.0; // hard-coded mass

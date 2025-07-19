@@ -50,7 +50,13 @@ public:
             // needed because fields are defined at t=n+1/2
             for (auto dim = 0; dim < dimension; ++dim)
             {
-                particle.position[dim] += particle.v[dim] * this->dt_ * 0.5;
+                auto const dr = particle.v[dim] * this->dt_ * 0.5;
+                if (dr > this->layout_->cell_size(Direction::X) * 0.5)
+                {
+                    throw std::runtime_error(
+                        "Particle moved more than half a cell size in one step in 1nd update");
+                }
+                particle.position[dim] += dr;
             }
 
             double const iCell_float = particle.position[0] / this->layout_->cell_size(Direction::X)
@@ -58,7 +64,6 @@ public:
             int const iCell       = static_cast<int>(iCell_float);
             double const reminder = iCell_float - iCell;
             double const qdto2m   = particle.charge * this->dt_ / (2.0 * particle.mass);
-
 
             // Interpolate E and B fields at particle position
             auto const dx   = this->layout_->cell_size(Direction::X);
@@ -95,7 +100,13 @@ public:
             // so we can compute the other half of the position update
             for (auto dim = 0; dim < dimension; ++dim)
             {
-                particle.position[dim] += particle.v[dim] * this->dt_ * 0.5;
+                auto const dr = particle.v[dim] * this->dt_ * 0.5;
+                if (dr > this->layout_->cell_size(Direction::X) * 0.5)
+                {
+                    throw std::runtime_error(
+                        "Particle moved more than half a cell size in one step in 2nd update");
+                }
+                particle.position[dim] += dr;
             }
         }
     }
@@ -103,6 +114,13 @@ public:
 private:
     double interpolate(Field<dimension> const& field, int iCell, double reminder) const
     {
+        if (this->layout_->centerings(field.quantity())[0] == this->layout_->dual)
+        {
+            if (reminder < 0.5)
+                return field(iCell - 1) * (1.0 - reminder) + field(iCell) * reminder;
+            else
+                return field(iCell) * (1.0 - reminder) + field(iCell + 1) * reminder;
+        }
         return field(iCell) * (1.0 - reminder) + field(iCell + 1) * reminder;
     }
 };

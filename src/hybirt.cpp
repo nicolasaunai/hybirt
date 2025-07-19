@@ -94,7 +94,7 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
 int main()
 {
     double time                     = 0.;
-    double final_time               = 1.0000;
+    double final_time               = 4.0000;
     double dt                       = 0.0001;
     std::size_t constexpr dimension = 1;
 

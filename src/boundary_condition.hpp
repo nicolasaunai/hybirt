@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <cmath>
 
 
 template<std::size_t dimension>
@@ -114,21 +115,35 @@ public:
             for (auto& particle : particles)
             {
                 double cell
-                    = static_cast<int>(particle.position[0] / this->m_grid->cell_size(Direction::X))
+                    = std::floor(particle.position[0] / this->m_grid->cell_size(Direction::X))
                       + this->m_grid->dual_dom_start(Direction::X);
+                auto cell_save     = cell;
+                auto position_save = particle.position[0];
 
                 // particles left the right border injected on left side
                 if (cell > this->m_grid->dual_dom_end(Direction::X))
                 {
-                    cell -= this->m_grid->nbr_cells(Direction::X);
-                    particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
+                    // cell -= this->m_grid->nbr_cells(Direction::X);
+                    // particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
+                    particle.position[0] -= this->m_grid->dom_size(Direction::X);
                 }
                 // particles left the left border injected on right side
                 else if (cell < this->m_grid->dual_dom_start(Direction::X))
                 {
                     // Wrap around tothe right side
-                    cell += this->m_grid->nbr_cells(Direction::X);
-                    particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
+                    // cell += this->m_grid->nbr_cells(Direction::X);
+                    // particle.position[0] = cell - this->m_grid->dual_dom_start(Direction::X);
+                    particle.position[0] += this->m_grid->dom_size(Direction::X);
+                }
+
+                if (particle.position[0] < 0.0
+                    or particle.position[0] >= this->m_grid->dom_size(Direction::X))
+                {
+                    std::cout << "Particle position out of bounds after periodic BC: "
+                              << particle.position[0] << " cell: " << cell
+                              << " cell_save: " << cell_save << " position_save: " << position_save
+                              << " dom_size: " << this->m_grid->dom_size(Direction::X) << "\n";
+                    throw std::runtime_error("Particle position out of bounds after periodic BC");
                 }
             }
         }
