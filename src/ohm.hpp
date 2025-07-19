@@ -43,21 +43,24 @@ public:
                 auto const& Vz = V.z;
 
                 auto& Ex = Enew.x;
-                auto& Ey = Enew.y;
-                auto& Ez = Enew.z;
 
                 auto const Vy_dual = 0.5 * (Vy(ix + 1) + Vy(ix));
                 auto const Vz_dual = 0.5 * (Vz(ix + 1) + Vz(ix));
                 auto const N_dual  = 0.5 * (N(ix + 1) + N(ix));
+                auto const Jy_dual = 0.5 * (Jy(ix + 1) + Jy(ix));
+                auto const Jz_dual = 0.5 * (Jz(ix + 1) + Jz(ix));
 
                 auto const ideal_x = -(Vy_dual * Bz(ix) - Vz_dual * By(ix));
-                auto const hall_x  = (Jy(ix) * Bz(ix) - Jz(ix) * By(ix)) / N_dual;
-                // std::cout << "hall_x at ix " << ix << ": " << hall_x << " jy: " << Jy(ix)
-                //           << ", jz: " << Jz(ix) << ", by: " << By(ix) << ", bz: " << Bz(ix)
-                //           << ", n: " << N_dual << " N(ix + 1): " << N(ix + 1) << " N(ix) << "
-                //           << N(ix) << "\n";
+                auto const hall_x  = (Jy_dual * Bz(ix) - Jz_dual * By(ix)) / N_dual;
 
-                Ex(ix) = ideal_x + hall_x;
+
+                // if (ix == 2)
+                //     std::cout << "hall_x at ix=" << ix << ": " << hall_x << " jy: " << Jy(ix)
+                //               << ", jz: " << Jz(ix) << ", by: " << By(ix) << ", bz: " << Bz(ix)
+                //               << ", n: " << N_dual << " N(ix + 1): " << N(ix + 1)
+                //               << " N(ix) = " << N(ix) << "\n";
+
+                Ex(ix) = ideal_x + 1 * hall_x + 0.01 * Jx(ix);
                 // - 0.001 * (Jx(ix + 1) - 2 * Jx(ix) + Jx(ix - 1))
                 //       / (dx * dx); // + 0.001*Jx(ix);
             }
@@ -83,15 +86,18 @@ public:
                 auto& Ey = Enew.y;
                 auto& Ez = Enew.z;
 
+                auto const Jx_primal = 0.5 * (Jx(ix) + Jx(ix - 1));
+                auto const Bz_primal = 0.5 * (Bz(ix) + Bz(ix - 1));
+                auto const By_primal = 0.5 * (By(ix) + By(ix - 1));
 
-                auto const ideal_y = -(Vz(ix) * Bx(ix) - Vx(ix) * Bz(ix));
-                auto const hall_y  = (Jz(ix) * Bx(ix) - Jx(ix) * Bz(ix)) / N(ix);
+                auto const ideal_y = -(Vz(ix) * Bx(ix) - Vx(ix) * Bz_primal);
+                auto const hall_y  = (Jz(ix) * Bx(ix) - Jx_primal * Bz_primal) / N(ix);
 
-                auto const ideal_z = -(Vx(ix) * By(ix) - Vy(ix) * Bx(ix));
-                auto const hall_z  = (Jx(ix) * By(ix) - Jy(ix) * Bx(ix)) / N(ix);
+                auto const ideal_z = -(Vx(ix) * By_primal - Vy(ix) * Bx(ix));
+                auto const hall_z  = (Jx_primal * By_primal - Jy(ix) * Bx(ix)) / N(ix);
 
-                Ey(ix) = ideal_y + hall_y;
-                Ez(ix) = ideal_z + hall_z;
+                Ey(ix) = ideal_y + 1 * hall_y + 0.01 * Jy(ix);
+                Ez(ix) = ideal_z + 1 * hall_z + 0.01 * Jz(ix);
             }
         }
         else

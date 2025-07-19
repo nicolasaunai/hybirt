@@ -36,6 +36,12 @@ public:
 
                 Jy(ix) = -(Bz(ix) - Bz(ix - 1)) / dx;
                 Jz(ix) = (By(ix) - By(ix - 1)) / dx;
+                // if (ix == 2)
+                // {
+                //     std::cout << "Jz(" << ix << ") = " << Jz(ix) << ", By(" << ix
+                //               << ") = " << By(ix) << ", By(" << ix - 1 << ") = " << By(ix - 1)
+                //               << "\n";
+                // }
                 // std::cout << "Jy(" << ix << ") = " << Jy(ix) << "\n";
                 // std::cout << "Bz(" << ix << ") = " << Bz(ix) << ", Bz(" << ix
                 //           << ") = " << Bz(ix - 1) << "\n";

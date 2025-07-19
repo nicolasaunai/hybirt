@@ -45,6 +45,12 @@ public:
 
                 Bnewy(ix) = By(ix) + m_dt * (Ez(ix + 1) - Ez(ix)) / dx;
                 Bnewz(ix) = Bz(ix) - m_dt * (Ey(ix + 1) - Ey(ix)) / dx;
+                // if (ix == 2)
+                // {
+                //     std::cout << "Bnewy(" << ix << ") = " << Bnewy(ix) << ", Bnewz(" << ix
+                //               << ") = " << Bnewz(ix) << " Ez(ix + 1): " << Ez(ix + 1)
+                //               << " Ez(ix): " << Ez(ix) << "\n";
+                // }
             }
 
             for (auto ix = m_grid->ghost_start(Quantity::Bx, Direction::X);

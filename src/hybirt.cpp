@@ -51,14 +51,14 @@ double bx(double x)
 double by(double x)
 {
     // Placeholder for a function that returns By based on x
-    return 0.0; // Example value
+    return 1.0; // Example value
 }
 
 
 double bz(double x)
 {
     // Placeholder for a function that returns Bz based on x
-    return 1.0; // Example value
+    return 0.0; // Example value
 }
 
 double density(double x)
@@ -94,12 +94,12 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
 int main()
 {
     double time                     = 0.;
-    double final_time               = 0.50;
+    double final_time               = 1.0000;
     double dt                       = 0.0001;
     std::size_t constexpr dimension = 1;
 
     std::array<std::size_t, dimension> grid_size = {100};
-    std::array<double, dimension> cell_size      = {0.1};
+    std::array<double, dimension> cell_size      = {0.2};
     auto constexpr nbr_ghosts                    = 1;
     auto constexpr nppc                          = 100;
 
@@ -153,22 +153,27 @@ int main()
     while (time < final_time)
     {
         std::cout << "Time: " << time << " / " << final_time << "\n";
+
+
+
         // predictor 1
+        std::cout << "Predictor 1 step-------------\n";
         faraday(B, E, Bnew);
         ampere(Bnew, J);
         boundary_condition->fill(J);
-
         ohm(Bnew, J, N, V, Enew);
-
         average(E, Enew, Eavg);
         average(B, Bnew, Bavg);
         boundary_condition->fill(Eavg);
         boundary_condition->fill(Bavg);
 
+
+
+
         // save particles at t=n before updating to predicted t=n+1
         // because predictor 2 will re-start from t=n
         auto save{populations};
-        for (auto& pop : populations)
+        for (auto& pop : save)
         {
             push(pop.particles(), Eavg, Bavg);
             boundary_condition->particles(pop.particles());
@@ -178,7 +183,13 @@ int main()
         }
         total_density(populations, N);
         bulk_velocity<dimension>(populations, N, V);
+        save.clear(); // clear the save vector to free memory
+
+
+
+
         // predictor 2
+        std::cout << "Predictor 2 step-------------\n";
         faraday(B, Eavg, Bnew);
         ampere(Bnew, J);
         boundary_condition->fill(J);
@@ -188,7 +199,10 @@ int main()
         boundary_condition->fill(Eavg);
         boundary_condition->fill(Bavg);
 
-        populations = save;
+
+
+
+        // populations = save;
         for (auto& pop : populations)
         {
             push(pop.particles(), Eavg, Bavg);
@@ -201,7 +215,10 @@ int main()
         bulk_velocity<dimension>(populations, N, V);
 
 
+
+
         // corrector
+        std::cout << "Corrector step-------------\n";
         faraday(B, Eavg, B);
         ampere(B, J);
         boundary_condition->fill(J);
@@ -211,7 +228,8 @@ int main()
 
         time += dt;
         diags_write_fields(B, E, V, N, time);
-        diags_write_particles(populations, time);
+        std::cout << "**********************************\n";
+        // diags_write_particles(populations, time);
     }
 
 
