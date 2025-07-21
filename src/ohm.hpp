@@ -21,10 +21,6 @@ public:
                     VecField<dimension> const& V, VecField<dimension>& Enew)
 
     {
-        // Placeholder implementation
-        // std::cout << "ohm called\n";
-        // Ex = -(Vy * Bz - Vz * By) + (JyBz - JzBy) / N;
-
         auto const dx = m_grid->cell_size(Direction::X);
         if constexpr (dimension == 1)
         {
@@ -53,16 +49,7 @@ public:
                 auto const ideal_x = -(Vy_dual * Bz(ix) - Vz_dual * By(ix));
                 auto const hall_x  = (Jy_dual * Bz(ix) - Jz_dual * By(ix)) / N_dual;
 
-
-                // if (ix == 2)
-                //     std::cout << "hall_x at ix=" << ix << ": " << hall_x << " jy: " << Jy(ix)
-                //               << ", jz: " << Jz(ix) << ", by: " << By(ix) << ", bz: " << Bz(ix)
-                //               << ", n: " << N_dual << " N(ix + 1): " << N(ix + 1)
-                //               << " N(ix) = " << N(ix) << "\n";
-
                 Ex(ix) = ideal_x + 1 * hall_x + 0.000 * Jx(ix);
-                // - 0.001 * (Jx(ix + 1) - 2 * Jx(ix) + Jx(ix - 1))
-                //       / (dx * dx); // + 0.001*Jx(ix);
             }
 
             // Ey is primal in x, so is Ez

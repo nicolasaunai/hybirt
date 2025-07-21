@@ -19,7 +19,6 @@ public:
 
     void operator()(VecField<dimension> const& B, VecField<dimension>& J)
     {
-        // std::cout << "Ampere called\n";
         auto const dx = m_grid->cell_size(Direction::X);
 
         if constexpr (dimension == 1)
@@ -36,18 +35,6 @@ public:
 
                 Jy(ix) = -(Bz(ix) - Bz(ix - 1)) / dx;
                 Jz(ix) = (By(ix) - By(ix - 1)) / dx;
-                // if (ix == 2)
-                // {
-                //     std::cout << "Jz(" << ix << ") = " << Jz(ix) << ", By(" << ix
-                //               << ") = " << By(ix) << ", By(" << ix - 1 << ") = " << By(ix - 1)
-                //               << "\n";
-                // }
-                // std::cout << "Jy(" << ix << ") = " << Jy(ix) << "\n";
-                // std::cout << "Bz(" << ix << ") = " << Bz(ix) << ", Bz(" << ix
-                //           << ") = " << Bz(ix - 1) << "\n";
-                // std::cout << "Jz(" << ix << ") = " << Jz(ix) << "\n";
-                // std::cout << "By(" << ix << ") = " << By(ix) << ", By(" << ix
-                //           << ") = " << By(ix - 1) << "\n";
             }
         }
         else

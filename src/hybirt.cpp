@@ -94,8 +94,8 @@ void magnetic_init(VecField<1>& B, GridLayout<1> const& layout)
 int main()
 {
     double time                     = 0.;
-    double final_time               = 4.0000;
-    double dt                       = 0.0001;
+    double final_time               = 10.0000;
+    double dt                       = 0.001;
     std::size_t constexpr dimension = 1;
 
     std::array<std::size_t, dimension> grid_size = {100};
@@ -154,10 +154,7 @@ int main()
     {
         std::cout << "Time: " << time << " / " << final_time << "\n";
 
-
-
         // predictor 1
-        std::cout << "Predictor 1 step-------------\n";
         faraday(B, E, Bnew);
         ampere(Bnew, J);
         boundary_condition->fill(J);
@@ -189,7 +186,6 @@ int main()
 
 
         // predictor 2
-        std::cout << "Predictor 2 step-------------\n";
         faraday(B, Eavg, Bnew);
         ampere(Bnew, J);
         boundary_condition->fill(J);
@@ -218,7 +214,6 @@ int main()
 
 
         // corrector
-        std::cout << "Corrector step-------------\n";
         faraday(B, Eavg, B);
         ampere(B, J);
         boundary_condition->fill(J);

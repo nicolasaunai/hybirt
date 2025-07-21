@@ -24,7 +24,6 @@ public:
     void operator()(VecField<dimension> const& B, VecField<dimension> const& E,
                     VecField<dimension>& Bnew)
     {
-        // std::cout << "faraday called\n";
         auto const dx = m_grid->cell_size(Direction::X);
 
         if constexpr (dimension == 1)
@@ -32,7 +31,6 @@ public:
             for (auto ix = m_grid->ghost_start(Quantity::By, Direction::X);
                  ix <= m_grid->ghost_end(Quantity::By, Direction::X); ++ix)
             {
-                // By and Bz loop
                 auto const& By = B.y;
                 auto const& Bz = B.z;
 
@@ -45,18 +43,11 @@ public:
 
                 Bnewy(ix) = By(ix) + m_dt * (Ez(ix + 1) - Ez(ix)) / dx;
                 Bnewz(ix) = Bz(ix) - m_dt * (Ey(ix + 1) - Ey(ix)) / dx;
-                // if (ix == 2)
-                // {
-                //     std::cout << "Bnewy(" << ix << ") = " << Bnewy(ix) << ", Bnewz(" << ix
-                //               << ") = " << Bnewz(ix) << " Ez(ix + 1): " << Ez(ix + 1)
-                //               << " Ez(ix): " << Ez(ix) << "\n";
-                // }
             }
 
             for (auto ix = m_grid->ghost_start(Quantity::Bx, Direction::X);
                  ix <= m_grid->ghost_end(Quantity::Bx, Direction::X); ++ix)
             {
-                // By and Bz loop
                 auto const& Bx = B.x;
                 auto& Bnewx    = Bnew.x;
                 Bnewx(ix)      = Bx(ix);

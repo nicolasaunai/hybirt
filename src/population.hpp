@@ -79,11 +79,6 @@ public:
                 particle.mass   = 1.0; // hard-coded mass
                 particle.charge = 1.0; // hard-coded charge
 
-                // std::cout << "Particle " << m_particles.size() << ": "
-                //           << "Position: " << particle.position[0] << ", "
-                //           << "Velocity: (" << particle.v[0] << ", " << particle.v[1] << ", "
-                //           << particle.v[2] << "), "
-                //           << "Weight: " << particle.weight << "\n";
                 m_particles.push_back(particle);
             }
         }
@@ -112,9 +107,6 @@ public:
             double const reminder    = iCell_float - iCell_;
             auto const iCell         = iCell_ + m_grid->dual_dom_start(Direction::X);
 
-            // std::cout << "Depositing particle position: " << particle.position[0]
-            //           << ", iCell: " << iCell << ", reminder: " << reminder
-            //           << ", weight: " << particle.weight << "\n";
 
             m_density(iCell) += particle.weight * (1.0 - reminder);
             m_density(iCell + 1) += particle.weight * reminder;
