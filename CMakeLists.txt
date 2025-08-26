@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.20.1) 
 
-project(HYBIRT VERSION 0.1 LANGUAGES CXX C)
+project(HYBIRT VERSION 0.1 LANGUAGES CXX)
 
 # Release mode default
 if(NOT CMAKE_BUILD_TYPE)
@@ -51,11 +51,17 @@ message("HighFive enabled - checking HDF5")
 
 set(SOURCE_INC
    src/ampere.hpp
-   src/pusher.hpp
+   src/boundary_condition.hpp
+   src/diagnostics.hpp
    src/faraday.hpp
    src/field.hpp
+   src/gridlayout.hpp
+   src/moments.hpp
    src/ohm.hpp
+   src/particle.hpp
+   src/population.hpp
    src/pusher.hpp
+   src/pusher_factory.hpp
    src/utils.hpp
    src/vecfield.hpp
 )
